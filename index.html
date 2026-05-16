@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Techable — The AI That Remembers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A; --navy2:#1A2E42; --navy3:#243C54;
+  --rust:#C4552B; --rust-lt:#E07A55; --rust-pale:#FDF0EB;
+  --cream:#FAF6F0; --cream2:#F2EAE0;
+  --gold:#D4A843; --gold-pale:#FBF4E3;
+  --ink:#1A1208; --ink2:#4A3828; --ink3:#8C7A6A; --ink4:#B8A898;
+  --white:#FFFFFF;
+  --font-display:'Fraunces',serif;
+  --font-body:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--cream);color:var(--ink);overflow-x:hidden}
+::selection{background:var(--rust);color:#fff}
+
+/* ── NAV ────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 6vw;height:64px;
+  display:flex;align-items:center;gap:32px;
+  background:rgba(250,246,240,0.88);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(180,160,140,.15);
+  transition:box-shadow .3s;
+}
+nav.scrolled{box-shadow:0 2px 24px rgba(13,27,42,.08)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto}
+.nav-mark{
+  width:34px;height:34px;border-radius:10px;
+  background:var(--rust);display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:#fff;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(196,85,43,.35);
+}
+.nav-name{font-family:var(--font-display);font-size:17px;font-weight:400;color:var(--ink)}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{font-size:13px;color:var(--ink3);text-decoration:none;transition:color .2s;font-weight:400}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{
+  padding:8px 20px;border-radius:24px;font-size:13px;font-weight:500;
+  background:var(--navy);color:#fff;text-decoration:none;
+  transition:all .2s;white-space:nowrap;
+  box-shadow:0 2px 12px rgba(13,27,42,.25);
+}
+.nav-cta:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(13,27,42,.3)}
+.nav-mob{display:none;background:none;border:none;font-size:22px;color:var(--ink2);cursor:pointer;margin-left:auto}
+
+/* ── HERO ────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;gap:60px;
+  padding:100px 6vw 60px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 70% 40%, rgba(212,168,67,.08) 0%, transparent 60%),
+             radial-gradient(ellipse 50% 40% at 20% 80%, rgba(196,85,43,.06) 0%, transparent 50%);
+  pointer-events:none;
+}
+.hero-left{position:relative;z-index:1}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--gold-pale);border:1px solid rgba(212,168,67,.3);
+  border-radius:20px;padding:5px 14px;
+  font-size:11px;font-weight:500;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:28px;
+}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold)}
+h1{
+  font-family:var(--font-display);font-size:clamp(40px,5.5vw,68px);
+  font-weight:300;line-height:1.12;color:var(--navy);
+  margin-bottom:24px;
+}
+h1 em{font-style:italic;color:var(--rust)}
+.hero-sub{
+  font-size:clamp(15px,1.5vw,17px);color:var(--ink2);
+  line-height:1.7;max-width:480px;margin-bottom:40px;
+  font-weight:300;
+}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{
+  padding:14px 28px;border-radius:30px;font-size:14px;font-weight:500;
+  background:var(--rust);color:#fff;text-decoration:none;
+  transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(196,85,43,.3);
+}
+.btn-primary:hover{background:var(--rust-lt);transform:translateY(-2px);box-shadow:0 6px 28px rgba(196,85,43,.4)}
+.btn-outline{
+  padding:14px 28px;border-radius:30px;font-size:14px;font-weight:500;
+  background:transparent;color:var(--navy);text-decoration:none;
+  border:1.5px solid rgba(13,27,42,.2);transition:all .2s;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-outline:hover{border-color:var(--navy);background:rgba(13,27,42,.04)}
+.hero-right{position:relative;z-index:1;display:flex;justify-content:center}
+
+/* chat card */
+.chat-card{
+  background:var(--white);border-radius:24px;
+  box-shadow:0 24px 80px rgba(13,27,42,.14),0 4px 16px rgba(13,27,42,.06);
+  width:100%;max-width:420px;overflow:hidden;
+  animation:floatCard 6s ease-in-out infinite;
+}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.cc-header{
+  background:var(--navy);padding:16px 20px;
+  display:flex;align-items:center;gap:12px;
+}
+.cc-av{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--rust);display:flex;align-items:center;justify-content:center;
+  font-size:17px;border:2px solid rgba(255,255,255,.2);
+}
+.cc-info{flex:1}
+.cc-name{font-size:13px;font-weight:500;color:#fff}
+.cc-status{font-size:11px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px}
+.cc-status::before{content:'';width:5px;height:5px;border-radius:50%;background:#4ADE80}
+.cc-body{padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--cream)}
+.bubble{padding:11px 15px;border-radius:16px;font-size:13px;line-height:1.55;max-width:85%}
+.bubble.ai{background:var(--white);border-bottom-left-radius:3px;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06);align-self:flex-start}
+.bubble.user{background:var(--rust);color:#fff;border-bottom-right-radius:3px;align-self:flex-end}
+.bubble.ai.highlight{border-left:3px solid var(--gold);background:var(--gold-pale)}
+.typing{display:flex;gap:4px;padding:11px 15px;background:var(--white);border-radius:16px;border-bottom-left-radius:3px;width:64px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--ink4);animation:dt 1.3s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes dt{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.cc-footer{padding:12px 16px;background:var(--white);border-top:1px solid var(--cream2);display:flex;align-items:center;gap:8px}
+.cc-input{flex:1;font-size:12px;color:var(--ink3);font-family:var(--font-body)}
+.cc-send{width:30px;height:30px;border-radius:50%;background:var(--rust);display:flex;align-items:center;justify-content:center;font-size:13px}
+.hero-stat-row{display:flex;gap:28px;margin-top:40px}
+.h-stat{text-align:left}
+.h-stat-n{font-family:var(--font-display);font-size:28px;font-weight:300;color:var(--navy)}
+.h-stat-l{font-size:11px;color:var(--ink3);margin-top:2px;line-height:1.4}
+
+/* ── SECTION BASE ────────────────────────────── */
+section{padding:100px 6vw}
+.section-tag{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--rust);margin-bottom:14px;display:block}
+h2{font-family:var(--font-display);font-size:clamp(32px,4vw,52px);font-weight:300;line-height:1.18;color:var(--navy)}
+h2 em{font-style:italic;color:var(--rust)}
+.section-sub{font-size:clamp(14px,1.3vw,16px);color:var(--ink3);line-height:1.7;max-width:560px;margin-top:16px;font-weight:300}
+
+/* ── PROBLEM ─────────────────────────────────── */
+.problem{background:var(--navy);color:#fff;position:relative;overflow:hidden}
+.problem::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(196,85,43,.15) 0%,transparent 60%);
+  pointer-events:none;
+}
+.problem h2{color:#fff}
+.problem h2 em{color:var(--rust-lt)}
+.problem .section-sub{color:rgba(255,255,255,.55)}
+.problem-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,.08);border-radius:20px;overflow:hidden;margin-top:64px}
+.p-stat{
+  background:rgba(255,255,255,.04);padding:40px 36px;
+  transition:background .3s;
+}
+.p-stat:hover{background:rgba(255,255,255,.08)}
+.p-num{font-family:var(--font-display);font-size:clamp(42px,5vw,64px);font-weight:300;line-height:1;color:#fff;margin-bottom:12px}
+.p-num span{color:var(--rust-lt)}
+.p-label{font-size:14px;color:rgba(255,255,255,.55);line-height:1.6;font-weight:300}
+.p-source{font-size:11px;color:rgba(255,255,255,.25);margin-top:10px}
+
+/* ── FEATURES ────────────────────────────────── */
+.features{background:var(--cream)}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:56px}
+.feat-card{
+  background:var(--white);border-radius:20px;padding:32px;
+  border:1px solid rgba(180,160,140,.15);
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.feat-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(196,85,43,.04) 0%,transparent 60%);pointer-events:none}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(13,27,42,.1);border-color:rgba(196,85,43,.2)}
+.feat-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:22px;
+}
+.fi-rust{background:var(--rust-pale)}
+.fi-navy{background:#EBF0F7}
+.fi-gold{background:var(--gold-pale)}
+.fi-green{background:#EBF5EF}
+.feat-title{font-family:var(--font-display);font-size:20px;font-weight:400;color:var(--navy);margin-bottom:12px;line-height:1.25}
+.feat-desc{font-size:13px;color:var(--ink3);line-height:1.7;font-weight:300}
+.feat-tag{display:inline-block;margin-top:14px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--rust);background:var(--rust-pale);padding:3px 10px;border-radius:10px}
+
+/* ── HOW IT WORKS ────────────────────────────── */
+.how{background:var(--cream2);position:relative}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:64px;position:relative}
+.steps::before{
+  content:'';position:absolute;top:52px;left:calc(50% / 3 + 80px);right:calc(50% / 3 + 80px);
+  height:1px;background:linear-gradient(to right,var(--rust-lt),var(--gold),var(--navy3));
+  opacity:.3;
+}
+.step{text-align:center;position:relative}
+.step-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--white);border:2px solid rgba(180,160,140,.2);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;font-size:24px;
+  box-shadow:0 4px 20px rgba(13,27,42,.08);
+  transition:all .25s;position:relative;z-index:1;
+}
+.step:hover .step-circle{border-color:var(--rust);transform:scale(1.08);box-shadow:0 8px 28px rgba(196,85,43,.2)}
+.step-n{
+  position:absolute;top:-6px;right:-6px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--rust);color:#fff;font-size:10px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-title{font-family:var(--font-display);font-size:18px;font-weight:400;color:var(--navy);margin-bottom:10px}
+.step-desc{font-size:13px;color:var(--ink3);line-height:1.65;font-weight:300}
+
+/* ── ROBOT SECTION ───────────────────────────── */
+.robot{background:var(--navy);position:relative;overflow:hidden}
+.robot::after{
+  content:'';position:absolute;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,168,67,.12) 0%,transparent 70%);
+  right:-100px;top:50%;transform:translateY(-50%);
+  pointer-events:none;
+}
+.robot-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1}
+.robot h2{color:#fff}
+.robot h2 em{color:var(--gold)}
+.robot .section-sub{color:rgba(255,255,255,.5)}
+.robot-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.3);
+  border-radius:20px;padding:6px 14px;margin-bottom:24px;
+  font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);
+}
+.robot-stack{display:flex;flex-direction:column;gap:12px;margin-top:36px}
+.stack-row{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:14px 18px;transition:all .2s;
+}
+.stack-row:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.15)}
+.stack-icon{font-size:20px;width:36px;text-align:center;flex-shrink:0}
+.stack-info{flex:1}
+.stack-name{font-size:13px;font-weight:500;color:#fff}
+.stack-desc{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.stack-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;white-space:nowrap}
+.sb-now{background:rgba(74,222,128,.15);color:#4ADE80}
+.sb-soon{background:rgba(212,168,67,.15);color:var(--gold)}
+.robot-visual{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;padding:32px;text-align:center;
+}
+.robot-emoji{font-size:80px;display:block;margin-bottom:20px;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.robot-visual h3{font-family:var(--font-display);font-size:22px;font-weight:300;color:#fff;margin-bottom:10px}
+.robot-visual p{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;font-weight:300}
+.coming-soon-pill{
+  display:inline-block;margin-top:18px;
+  background:rgba(212,168,67,.15);border:1px solid rgba(212,168,67,.3);
+  color:var(--gold);font-size:11px;font-weight:500;
+  padding:5px 14px;border-radius:20px;letter-spacing:.05em;
+}
+
+/* ── TECH ────────────────────────────────────── */
+.tech{background:var(--cream)}
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+.tech-card{
+  background:var(--white);border-radius:16px;padding:22px 24px;
+  border:1px solid rgba(180,160,140,.15);
+  display:flex;align-items:flex-start;gap:14px;
+  transition:all .2s;
+}
+.tech-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(13,27,42,.08);border-color:rgba(196,85,43,.15)}
+.tech-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.tech-name{font-size:14px;font-weight:500;color:var(--navy);margin-bottom:4px}
+.tech-role{font-size:12px;color:var(--ink3);line-height:1.5;font-weight:300}
+
+/* ── CTA ─────────────────────────────────────── */
+.cta-section{
+  background:var(--navy);text-align:center;
+  padding:120px 6vw;position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 80% at 50% 100%,rgba(196,85,43,.2) 0%,transparent 60%);
+  pointer-events:none;
+}
+.cta-section h2{color:#fff;max-width:700px;margin:0 auto 20px;position:relative;z-index:1}
+.cta-section h2 em{color:var(--rust-lt)}
+.cta-section p{font-size:16px;color:rgba(255,255,255,.5);max-width:480px;margin:0 auto 44px;position:relative;z-index:1;font-weight:300}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.btn-white{
+  padding:14px 32px;border-radius:30px;font-size:14px;font-weight:500;
+  background:#fff;color:var(--navy);text-decoration:none;
+  transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.btn-ghost{
+  padding:14px 32px;border-radius:30px;font-size:14px;font-weight:500;
+  background:rgba(255,255,255,.08);color:#fff;text-decoration:none;
+  border:1px solid rgba(255,255,255,.2);
+  transition:all .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35)}
+
+/* ── FOOTER ──────────────────────────────────── */
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.06);padding:32px 6vw}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--font-display);font-size:16px;color:rgba(255,255,255,.4)}
+.footer-links{display:flex;gap:24px;list-style:none}
+.footer-links a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:rgba(255,255,255,.6)}
+.footer-note{font-size:12px;color:rgba(255,255,255,.2)}
+
+/* ── SCROLL REVEAL ───────────────────────────── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+.reveal-d4{transition-delay:.4s}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr;text-align:center;gap:48px}
+  .hero-sub{margin:0 auto 40px}
+  .hero-btns{justify-content:center}
+  .hero-stat-row{justify-content:center}
+  .robot-inner{grid-template-columns:1fr;gap:48px}
+  .robot-visual{max-width:400px;margin:0 auto}
+}
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none}
+  .nav-mob{display:block}
+  section{padding:70px 5vw}
+  .feat-grid{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr;gap:32px}
+  .steps::before{display:none}
+  .problem-grid{grid-template-columns:1fr}
+  .tech-grid{grid-template-columns:1fr 1fr}
+  .hero{padding:80px 5vw 50px}
+}
+@media(max-width:520px){
+  .tech-grid{grid-template-columns:1fr}
+  .hero-stat-row{flex-direction:column;gap:16px;align-items:center}
+  .chat-card{max-width:340px}
+}
+
+/* ── CONVERSATION ANIMATION ──────────────────── */
+.bubble,.typing{opacity:0;transition:opacity .4s ease,transform .4s ease;transform:translateY(8px)}
+.bubble.show,.typing.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-mark">🤖</div>
+    <span class="nav-name">Techable</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#robot">Robot</a></li>
+    <li><a href="#tech">Technology</a></li>
+  </ul>
+  <a class="nav-cta" href="app.html">Try Demo →</a>
+  <button class="nav-mob" onclick="alert('Mobile nav coming soon')">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">AI Companion for the Elderly</div>
+    <h1>The AI that <em>remembers,</em><br/>so they never feel<br/>forgotten.</h1>
+    <p class="hero-sub">Techable is a memory-aware AI companion that holds meaningful, personalised conversations with elderly residents — using their own stories, family memories, and life history.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="app.html">Try the Demo →</a>
+      <a class="btn-outline" href="#features">See How It Works</a>
+    </div>
+    <div class="hero-stat-row">
+      <div class="h-stat">
+        <div class="h-stat-n">60M+</div>
+        <div class="h-stat-l">elderly facing<br/>social isolation</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n">1 in 4</div>
+        <div class="h-stat-l">go a week without<br/>any conversation</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-n">26%</div>
+        <div class="h-stat-l">higher risk of<br/>early death</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="chat-card">
+      <div class="cc-header">
+        <div class="cc-av">🤖</div>
+        <div class="cc-info">
+          <div class="cc-name">Techable</div>
+          <div class="cc-status">Online with Grandma Maggie</div>
+        </div>
+      </div>
+      <div class="cc-body" id="chat-demo">
+        <!-- animated via JS -->
+      </div>
+      <div class="cc-footer">
+        <div class="cc-input">Type a message…</div>
+        <div class="cc-send">↑</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <span class="section-tag">The Problem</span>
+  <h2>Loneliness is a<br/><em>silent epidemic.</em></h2>
+  <p class="section-sub">Over 1 million older people in the UK alone go more than a month without speaking to a friend or family member. The consequences are devastating — and underreported.</p>
+  <div class="problem-grid reveal">
+    <div class="p-stat">
+      <div class="p-num">60<span>M+</span></div>
+      <div class="p-label">Senior citizens in the US experience chronic loneliness and memory loss, with limited access to meaningful daily interaction.</div>
+      <div class="p-source">Source: AARP, 2023</div>
+    </div>
+    <div class="p-stat">
+      <div class="p-num">26<span>%</span></div>
+      <div class="p-label">Higher risk of premature mortality associated with social isolation among elderly populations globally.</div>
+      <div class="p-source">Source: WHO, 2023</div>
+    </div>
+    <div class="p-stat">
+      <div class="p-num">1<span>:8</span></div>
+      <div class="p-label">Staff-to-resident ratio at the average care home — leaving virtually no time for meaningful one-on-one conversation daily.</div>
+      <div class="p-source">Source: CQC Report, 2022</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <span class="section-tag reveal">Solution</span>
+  <h2 class="reveal">Built to <em>know</em> each person,<br/>not just talk to them.</h2>
+  <p class="section-sub reveal">Techable goes beyond a generic chatbot. Every conversation is shaped by who the resident actually is — their history, their family, their joys.</p>
+  <div class="feat-grid">
+    <div class="feat-card reveal reveal-d1">
+      <div class="feat-icon fi-rust">🧠</div>
+      <div class="feat-title">Long-term memory</div>
+      <p class="feat-desc">Techable remembers every conversation and uses it naturally in future sessions. If Maggie mentioned her daughter's visit on Tuesday, Techable will ask how it went on Thursday.</p>
+      <span class="feat-tag">Core feature</span>
+    </div>
+    <div class="feat-card reveal reveal-d2">
+      <div class="feat-icon fi-navy">🎙</div>
+      <div class="feat-title">Voice-first interaction</div>
+      <p class="feat-desc">No apps, no touchscreens, no passwords. Elderly residents simply speak naturally. Techable listens, understands, and responds in a warm, unhurried voice at a comfortable pace.</p>
+      <span class="feat-tag">Accessibility</span>
+    </div>
+    <div class="feat-card reveal reveal-d3">
+      <div class="feat-icon fi-gold">👨‍👩‍👧</div>
+      <div class="feat-title">Family memory uploads</div>
+      <p class="feat-desc">Family members share stories, photos, and memories through a simple interface. Techable weaves these into conversation — bringing Grandma's grandchildren to life even when they cannot visit.</p>
+      <span class="feat-tag">Connection</span>
+    </div>
+    <div class="feat-card reveal reveal-d4">
+      <div class="feat-icon fi-green">📊</div>
+      <div class="feat-title">Daily wellbeing reports</div>
+      <p class="feat-desc">After each session, care staff and families receive a brief summary of the resident's mood, topics discussed, and any concerns raised — filling a critical information gap in care.</p>
+      <span class="feat-tag">Care support</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <span class="section-tag reveal">How It Works</span>
+  <h2 class="reveal">Three steps to a<br/><em>companion</em> who truly knows them.</h2>
+  <div class="steps">
+    <div class="step reveal reveal-d1">
+      <div class="step-circle">
+        🗂
+        <div class="step-n">1</div>
+      </div>
+      <div class="step-title">Build the memory bank</div>
+      <p class="step-desc">Add the resident's life story, family members, hobbies, and meaningful memories. The richer the profile, the more personal every conversation becomes.</p>
+    </div>
+    <div class="step reveal reveal-d2">
+      <div class="step-circle">
+        💬
+        <div class="step-n">2</div>
+      </div>
+      <div class="step-title">Start a conversation</div>
+      <p class="step-desc">The resident speaks naturally — or types. Techable detects emotional tone, recalls relevant memories, and responds with warmth, patience, and genuine personalisation.</p>
+    </div>
+    <div class="step reveal reveal-d3">
+      <div class="step-circle">
+        📋
+        <div class="step-n">3</div>
+      </div>
+      <div class="step-title">Track and improve</div>
+      <p class="step-desc">Sessions are saved automatically. Wellbeing trends are tracked over time. Families and carers receive summaries — giving everyone a clearer picture of how their loved one is doing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROBOT -->
+<section class="robot" id="robot">
+  <div class="robot-inner">
+    <div>
+      <div class="robot-badge">🤖 Expanding to Physical</div>
+      <h2>Soon, the AI gets<br/>a <em>body.</em></h2>
+      <p class="section-sub">Techable is expanding beyond screens. We are building affordable companion robots that bring the same memory-aware AI into a physical presence in care homes.</p>
+      <div class="robot-stack">
+        <div class="stack-row">
+          <div class="stack-icon">🍓</div>
+          <div class="stack-info">
+            <div class="stack-name">Raspberry Pi 5</div>
+            <div class="stack-desc">Local brain — runs Python, connects to Techable API</div>
+          </div>
+          <span class="stack-badge sb-now">In dev</span>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon">🎙</div>
+          <div class="stack-info">
+            <div class="stack-name">ReSpeaker Mic Array</div>
+            <div class="stack-desc">Far-field voice capture — hears across a room</div>
+          </div>
+          <span class="stack-badge sb-now">In dev</span>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon">🤖</div>
+          <div class="stack-info">
+            <div class="stack-name">Hiwonder / Yahboom Robot Kit</div>
+            <div class="stack-desc">Off-the-shelf base with display, assembled by students</div>
+          </div>
+          <span class="stack-badge sb-soon">Coming soon</span>
+        </div>
+        <div class="stack-row">
+          <div class="stack-icon">🐍</div>
+          <div class="stack-info">
+            <div class="stack-name">Python middleware</div>
+            <div class="stack-desc">Voice pipeline — wake word, STT, emotion analysis</div>
+          </div>
+          <span class="stack-badge sb-soon">Coming soon</span>
+        </div>
+      </div>
+    </div>
+    <div class="robot-visual reveal">
+      <span class="robot-emoji">🤖</span>
+      <h3>Student-built.<br/>Community-deployed.</h3>
+      <p>Students assemble the robot from a kit, integrate the Techable AI, and pilot it with real elderly residents — generating evidence for global health advocacy.</p>
+      <span class="coming-soon-pill">Physical prototype in progress</span>
+    </div>
+  </div>
+</section>
+
+<!-- TECH -->
+<section class="tech" id="tech">
+  <span class="section-tag reveal">Technology</span>
+  <h2 class="reveal">Built on a <em>solid</em><br/>open stack.</h2>
+  <p class="section-sub reveal">Designed to run locally for testing and scale to Google Cloud infrastructure for production deployment.</p>
+  <div class="tech-grid">
+    <div class="tech-card reveal reveal-d1">
+      <div class="tech-icon">⚡</div>
+      <div>
+        <div class="tech-name">Vercel</div>
+        <div class="tech-role">Web application hosting and voice interface deployment</div>
+      </div>
+    </div>
+    <div class="tech-card reveal reveal-d1">
+      <div class="tech-icon">🧠</div>
+      <div>
+        <div class="tech-name">Gemini / Claude</div>
+        <div class="tech-role">Speech-to-text, text-to-speech, natural language understanding</div>
+      </div>
+    </div>
+    <div class="tech-card reveal reveal-d2">
+      <div class="tech-icon">🔍</div>
+      <div>
+        <div class="tech-name">Pinecone</div>
+        <div class="tech-role">Vector database for long-term conversational memory retrieval</div>
+      </div>
+    </div>
+    <div class="tech-card reveal reveal-d2">
+      <div class="tech-icon">🗄</div>
+      <div>
+        <div class="tech-name">PostgreSQL</div>
+        <div class="tech-role">Relational database for resident profiles, sessions, and health reports</div>
+      </div>
+    </div>
+    <div class="tech-card reveal reveal-d3">
+      <div class="tech-icon">⚙</div>
+      <div>
+        <div class="tech-name">LangChain on Render</div>
+        <div class="tech-role">Backend orchestration, memory queries, and prompt construction</div>
+      </div>
+    </div>
+    <div class="tech-card reveal reveal-d3">
+      <div class="tech-icon">🔥</div>
+      <div>
+        <div class="tech-name">Firebase (planned)</div>
+        <div class="tech-role">Multi-device sync, auth, family photo storage, cloud functions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to see <em>Techable</em><br/>in action?</h2>
+  <p>Try the local demo — no account, no API key, no setup. Add a resident profile and start a conversation in under a minute.</p>
+  <div class="cta-btns">
+    <a class="btn-white" href="app.html">Try the Demo →</a>
+    <a class="btn-ghost" href="mailto:hello@techable.org">Get in Touch</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Techable © 2025</div>
+    <ul class="footer-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="app.html">App</a></li>
+      <li><a href="mailto:hello@techable.org">Contact</a></li>
+    </ul>
+    <div class="footer-note">Built for WHO Decade of Healthy Ageing · SDG 3 · SDG 10</div>
+  </div>
+</footer>
+
+<script>
+// NAV scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20)
+})
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') })
+}, { threshold: 0.12 })
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+
+// Hero chat animation
+const conv = [
+  { role:'ai',  text:'Good morning, Maggie! How are you feeling today?' },
+  { role:'user',text:'I\'m alright, I was thinking about David this morning.' },
+  { role:'ai',  text:'I remember you mentioned David proposed to you over char kway teow in Penang. What a beautiful memory. What were you thinking about?', highlight:true },
+  { role:'user',text:'Just how much I miss him. It\'s been 6 years.' },
+  { role:'ai',  text:'Six years is a long time to carry that. You must have had something truly special together. Tell me about your favourite memory with him.' },
+]
+const demo = document.getElementById('chat-demo')
+let ci = 0
+function showNext() {
+  if (ci >= conv.length) { setTimeout(reset, 4000); return }
+  const c = conv[ci++]
+  if (c.role === 'typing') {
+    const t = document.createElement('div')
+    t.className = 'typing'; t.innerHTML = '<span></span><span></span><span></span>'
+    demo.appendChild(t)
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')))
+    setTimeout(() => { t.remove(); showNext() }, 1200)
+    return
+  }
+  const b = document.createElement('div')
+  b.className = 'bubble ' + (c.role === 'ai' ? 'ai' : 'user') + (c.highlight ? ' highlight' : '')
+  b.textContent = c.text
+  demo.appendChild(b)
+  demo.scrollTop = demo.scrollHeight
+  requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add('show')))
+  setTimeout(showNext, c.role === 'ai' ? 2800 : 1600)
+}
+function reset() {
+  demo.innerHTML = ''; ci = 0
+  setTimeout(showNext, 800)
+}
+setTimeout(showNext, 1200)
+</script>
+
+</body>
+</html>
