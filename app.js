@@ -17,9 +17,9 @@ const DB = {
   }
 }
 
-// ── LOCAL AI ─────────────────────────────────────────────────
-// Intent → template response engine.
-// To swap to a real API: replace the fetchResponse body only.
+// ── AI LAYER ─────────────────────────────────────────────────
+// Uses Gemini when config.aiMode === "gemini", otherwise local engine.
+// To switch: change aiMode in config.js — nothing else needs to change.
 const AI = {
 
   intents: [
@@ -137,45 +137,66 @@ const AI = {
   },
 
   async fetchResponse(resident, messages) {
-    // Simulate natural thinking delay
+    // Respect AI mode override from profile settings
+    const storedMode = localStorage.getItem('t_ai_mode')
+    const cfg = { ...(window.TECHABLE_CONFIG || {}), ...(storedMode ? { aiMode: storedMode } : {}) }
+
+    // ── GEMINI ───────────────────────────────────────────────
+    if (cfg.aiMode === 'gemini') {
+      const key   = cfg.geminiApiKey
+      const model = cfg.geminiModel || 'gemini-2.0-flash'
+
+      if (!key || key === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
+        throw new Error('Gemini API key not set. Check your config or Vercel environment variables.')
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`
+
+      const contents = messages.map(m => ({
+        role:  m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      }))
+
+      const res = await fetch(url, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: this.buildSystemPrompt(resident) }] },
+          contents,
+          generationConfig: {
+            temperature:     0.85,
+            maxOutputTokens: 256,
+            topP:            0.95
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+          ]
+        })
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err?.error?.message || `Gemini error ${res.status}`)
+      }
+
+      const data = await res.json()
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+      if (!text) throw new Error('Empty response from Gemini. Check your API key and quota.')
+      return text.trim()
+    }
+
+    // ── LOCAL FALLBACK ────────────────────────────────────────
     await new Promise(r => setTimeout(r, 500 + Math.random() * 700))
-
-    const last = messages.at(-1)?.content || ''
-    const intent = this.detect(last)
-    const memory = this.findMemory(last, resident)
-    const name = resident.preferredName || resident.name || 'friend'
+    const last     = messages.at(-1)?.content || ''
+    const intent   = this.detect(last)
+    const memory   = this.findMemory(last, resident)
+    const name     = resident.preferredName || resident.name || 'friend'
     const variants = this.templates[intent] || this.templates.general
-    const t = variants[Math.floor(Math.random() * variants.length)]
+    const t        = variants[Math.floor(Math.random() * variants.length)]
     return this.fill(t, name, memory)
-
-    // ── SWAP TO CLAUDE API ──────────────────────────────────
-    // Delete above lines and uncomment:
-    //
-    // const key = localStorage.getItem('t_api_key')
-    // const res = await fetch('https://api.anthropic.com/v1/messages', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type':'application/json', 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-    //   body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:300,
-    //     system: `You are Techable, companion for ${resident.preferredName||resident.name}. Background: ${resident.background}. Family: ${resident.family}. Memories: ${(resident.memories||[]).map(m=>m.text).join(', ')}. Reply warmly in 2-3 sentences. End with a gentle question.`,
-    //     messages: messages.map(m=>({role:m.role,content:m.content})) })
-    // })
-    // const d = await res.json(); return d.content[0].text
-
-    // ── SWAP TO GEMINI ──────────────────────────────────────
-    // const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`, {
-    //   method:'POST', headers:{'Content-Type':'application/json'},
-    //   body: JSON.stringify({ contents: messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})) })
-    // })
-    // const d = await res.json(); return d.candidates[0].content.parts[0].text
-
-    // ── SWAP TO OLLAMA (local, no internet) ─────────────────
-    // Run: ollama pull llama3 && ollama serve
-    // const res = await fetch('http://localhost:11434/api/chat', {
-    //   method:'POST',
-    //   body: JSON.stringify({ model:'llama3', stream:false,
-    //     messages:[{role:'system',content:`Companion for ${resident.name}. ${resident.background}`},...messages] })
-    // })
-    // const d = await res.json(); return d.message.content
   }
 }
 
@@ -544,3 +565,40 @@ function toast(msg) {
 
 // close modals on overlay click
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open') }))
+
+// ── AI STATUS BADGE ───────────────────────────────────────────
+// Updates the header badge to show which AI mode is active
+document.addEventListener('DOMContentLoaded', () => {
+  const badge = document.getElementById('ai-badge')
+  if (!badge) return
+  const storedMode = localStorage.getItem('t_ai_mode')
+  const cfg = { ...(window.TECHABLE_CONFIG || {}), ...(storedMode ? { aiMode: storedMode } : {}) }
+  const keySet = cfg.geminiApiKey && cfg.geminiApiKey !== 'PASTE_YOUR_GEMINI_API_KEY_HERE'
+  if (cfg.aiMode === 'gemini' && keySet) {
+    badge.textContent = '● Gemini ' + (cfg.geminiModel || 'gemini-2.0-flash')
+    badge.style.background = '#EBF5EF'
+    badge.style.color      = '#3A7D5C'
+  } else if (cfg.aiMode === 'gemini' && !keySet) {
+    badge.textContent = '⚠ Gemini key missing'
+    badge.style.background = '#FDF0EB'
+    badge.style.color      = '#C4552B'
+  } else {
+    badge.textContent = '● Local Mode'
+  }
+})
+
+// ── USER MENU ─────────────────────────────────────────────────
+function toggleUserMenu() {
+  const menu = document.getElementById('usr-menu')
+  if (!menu) return
+  menu.classList.toggle('open')
+}
+// close menu when clicking outside
+document.addEventListener('click', e => {
+  const btn  = document.getElementById('usr-btn')
+  const menu = document.getElementById('usr-menu')
+  if (!menu) return
+  if (!btn?.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('open')
+  }
+})

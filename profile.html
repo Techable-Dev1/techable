@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Techable — My Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rust:#C4552B;--rust-lt:#E07A55;--rust-pale:#FDF0EB;
+  --navy:#0D1B2A;--cream:#FAF6F0;--cream2:#F2EAE0;
+  --white:#FFFFFF;--border:rgba(180,156,136,.18);--border2:rgba(180,156,136,.32);
+  --ink:#1A1208;--ink2:#4A3828;--ink3:#8C7A6A;--ink4:#C4B4A4;
+  --green:#3A7D5C;--green-bg:#EBF5EF;
+  --shadow-sm:0 2px 8px rgba(26,18,8,.07);--shadow:0 4px 20px rgba(26,18,8,.09);
+  --r:12px;--r-lg:18px;
+}
+html,body{min-height:100%;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea{font-family:inherit;outline:none}
+
+/* AUTH LOADING */
+#auth-loading{position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;justify-content:center;z-index:1000}
+.spin-ring{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--rust);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+.hdr{background:var(--white);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 24px;gap:14px;position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(26,18,8,.06)}
+.hdr-back{display:flex;align-items:center;gap:7px;text-decoration:none;font-size:13px;color:var(--ink2);padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);transition:all .18s;background:transparent}
+.hdr-back:hover{border-color:var(--rust);color:var(--rust);background:var(--rust-pale)}
+.hdr-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.hdr-mark{width:30px;height:30px;border-radius:8px;background:var(--rust);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.hdr-name{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--ink)}
+.hdr-space{flex:1}
+
+/* PAGE */
+.page{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+
+/* USER HERO */
+.user-hero{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px 28px;text-align:center;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.u-av{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;overflow:hidden;background:var(--rust);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:26px;font-weight:400;border:3px solid rgba(196,85,43,.2)}
+.u-av img{width:100%;height:100%;object-fit:cover}
+.u-name{font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--navy);margin-bottom:4px}
+.u-email{font-size:13px;color:var(--ink3);margin-bottom:16px}
+.u-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500}
+.badge-rust{background:var(--rust-pale);color:var(--rust)}
+.badge-green{background:var(--green-bg);color:var(--green)}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 24px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
+.card-title{font-family:'Fraunces',serif;font-size:15px;font-weight:400;color:var(--navy);margin-bottom:16px}
+.field{margin-bottom:14px}
+.field:last-of-type{margin-bottom:0}
+.field label{display:block;font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.field-row{display:flex;gap:10px}
+.field-row input{flex:1}
+.field input,.field textarea,.field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--cream);color:var(--ink);font-size:13px;transition:all .18s}
+.field input:focus{border-color:var(--rust);background:var(--white);box-shadow:0 0 0 3px rgba(196,85,43,.08)}
+.field input[readonly]{background:var(--cream);color:var(--ink3);cursor:default}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none;padding-bottom:0}
+.ir-label{font-size:12px;color:var(--ink3)}
+.ir-val{font-size:13px;color:var(--ink);font-weight:500}
+
+/* SETTINGS TOGGLE */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none;padding-bottom:0}
+.sr-info{flex:1}
+.sr-label{font-size:13px;font-weight:500;color:var(--ink)}
+.sr-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.toggle{width:42px;height:24px;border-radius:12px;background:var(--border2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
+.toggle.on{background:var(--rust)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:var(--r);font-size:13px;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
+.btn-p{background:var(--rust);color:#fff;box-shadow:0 2px 8px rgba(196,85,43,.2)}
+.btn-p:hover{background:var(--rust-lt)}
+.btn-s{background:var(--cream);color:var(--ink2);border:1.5px solid var(--border)}
+.btn-s:hover{border-color:var(--rust);color:var(--rust)}
+.btn-danger{background:#FEF2EF;color:#C4552B;border:1.5px solid rgba(196,85,43,.2)}
+.btn-danger:hover{background:#FCDDD5;border-color:var(--rust)}
+.btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn-full{width:100%;justify-content:center}
+
+/* SIGNOUT */
+.signout-section{margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.signout-section p{font-size:12px;color:var(--ink3);margin-top:10px}
+
+/* MSG */
+.msg{padding:9px 13px;border-radius:var(--r);font-size:13px;margin-bottom:12px;display:none}
+.msg.error{background:#FEF2EF;color:#C4552B;border:1px solid rgba(196,85,43,.2)}
+.msg.success{background:var(--green-bg);color:var(--green);border:1px solid rgba(58,125,92,.2)}
+.msg.show{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-weight:500;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:tIn .2s ease;white-space:nowrap}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+@media(max-width:480px){.page{padding:20px 14px 60px}.user-hero{padding:24px 20px}.card{padding:18px 18px}}
+</style>
+</head>
+<body>
+
+<!-- Auth loading overlay — hidden once auth confirmed -->
+<div id="auth-loading"><div class="spin-ring"></div></div>
+
+<header class="hdr">
+  <a class="hdr-back" href="app.html">← Back to App</a>
+  <div class="hdr-space"></div>
+  <a class="hdr-logo" href="index.html">
+    <div class="hdr-mark">🤖</div>
+    <span class="hdr-name">Techable</span>
+  </a>
+</header>
+
+<div class="page" id="page-content" style="display:none">
+
+  <!-- USER HERO -->
+  <div class="user-hero">
+    <div class="u-av" id="u-av">?</div>
+    <div class="u-name" id="u-name">Loading…</div>
+    <div class="u-email" id="u-email"></div>
+    <div class="u-badges">
+      <span class="badge badge-rust" id="u-provider">Email</span>
+      <span class="badge badge-green">Active</span>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE -->
+  <div class="card">
+    <div class="card-title">Edit Profile</div>
+    <div class="msg" id="profile-msg"></div>
+    <div class="field">
+      <label>Display Name</label>
+      <div class="field-row">
+        <input type="text" id="disp-name" placeholder="Your name"/>
+        <button class="btn btn-p" onclick="saveName()">Save</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="text" id="disp-email" readonly/>
+    </div>
+  </div>
+
+  <!-- ACCOUNT INFO -->
+  <div class="card">
+    <div class="card-title">Account Info</div>
+    <div class="info-row"><span class="ir-label">User ID</span><span class="ir-val" id="u-uid" style="font-size:11px;font-family:monospace">—</span></div>
+    <div class="info-row"><span class="ir-label">Account created</span><span class="ir-val" id="u-created">—</span></div>
+    <div class="info-row"><span class="ir-label">Last sign in</span><span class="ir-val" id="u-last-login">—</span></div>
+    <div class="info-row"><span class="ir-label">Sign-in method</span><span class="ir-val" id="u-method">—</span></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card">
+    <div class="card-title">Settings</div>
+    <div class="setting-row">
+      <div class="sr-info">
+        <div class="sr-label">Gemini AI</div>
+        <div class="sr-sub">Use Gemini for conversations (requires API key)</div>
+      </div>
+      <button class="toggle on" id="ai-toggle" onclick="toggleAI()" title="Toggle AI mode"></button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info">
+        <div class="sr-label">Voice output</div>
+        <div class="sr-sub">Read AI responses aloud after each message</div>
+      </div>
+      <button class="toggle on" id="voice-toggle" onclick="toggleVoicePref()" title="Toggle voice"></button>
+    </div>
+  </div>
+
+  <!-- SIGN OUT + DANGER -->
+  <div class="card signout-section">
+    <div class="card-title">Account Actions</div>
+    <div class="btn-row">
+      <button class="btn btn-s btn-full" onclick="doSignOut()">Sign Out</button>
+    </div>
+    <p>Signing out will not delete your data. Your resident profiles and sessions are saved locally.</p>
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;font-weight:500">Danger Zone</div>
+      <div class="msg" id="danger-msg"></div>
+      <button class="btn btn-danger btn-full" onclick="confirmDelete()">Delete Account</button>
+      <p style="margin-top:8px">This will permanently delete your account. Your locally-saved resident data will not be affected.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Config: API first, config.js fallback -->
+<script>
+  window._cfg = fetch('/api/config')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d?.firebase?.apiKey) window.TECHABLE_CONFIG = d })
+    .catch(() => {})
+    .then(() => window.TECHABLE_CONFIG)
+</script>
+<script src="config.js" onerror="void 0"></script>
+<script type="module" src="auth.js"></script>
+<script>
+function toast(msg) {
+  const t = document.createElement('div')
+  t.className = 'toast'; t.textContent = msg
+  document.body.appendChild(t)
+  setTimeout(() => t.remove(), 2400)
+}
+
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id)
+  el.textContent = txt
+  el.className = 'msg' + (type ? ' show ' + type : '')
+}
+
+// Populate profile once auth is ready
+document.addEventListener('auth:stateChanged', e => {
+  const user = e.detail
+  if (!user) return
+
+  const auth = window.TechableAuth
+  const av   = document.getElementById('u-av')
+  if (user.photoURL) {
+    av.innerHTML = `<img src="${user.photoURL}" alt="avatar"/>`
+  } else {
+    av.textContent = auth.initials(user)
+  }
+
+  document.getElementById('u-name').textContent       = auth.userName(user)
+  document.getElementById('u-email').textContent      = user.email || ''
+  document.getElementById('disp-name').value          = user.displayName || ''
+  document.getElementById('disp-email').value         = user.email || ''
+  document.getElementById('u-uid').textContent        = user.uid
+  document.getElementById('u-created').textContent    = user.metadata?.creationTime
+    ? new Date(user.metadata.creationTime).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})
+    : '—'
+  document.getElementById('u-last-login').textContent = user.metadata?.lastSignInTime
+    ? new Date(user.metadata.lastSignInTime).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})
+    : '—'
+
+  const providers = user.providerData?.map(p => p.providerId) || []
+  const methodTxt = providers.includes('google.com') ? 'Google' : 'Email / Password'
+  document.getElementById('u-method').textContent     = methodTxt
+  document.getElementById('u-provider').textContent   = providers.includes('google.com') ? 'Google' : 'Email'
+})
+
+// Load settings from localStorage
+window.addEventListener('load', () => {
+  const cfg = window.TECHABLE_CONFIG || {}
+  const aiOn = (localStorage.getItem('t_ai_mode') || cfg.aiMode || 'gemini') === 'gemini'
+  const voiceOn = localStorage.getItem('t_voice_pref') !== 'off'
+  document.getElementById('ai-toggle').classList.toggle('on', aiOn)
+  document.getElementById('voice-toggle').classList.toggle('on', voiceOn)
+})
+
+function saveName() {
+  const name = document.getElementById('disp-name').value.trim()
+  if (!name) { showMsg('profile-msg','Enter a display name.','error'); return }
+  window.TechableAuth.updateName(name)
+    .then(() => {
+      document.getElementById('u-name').textContent = name
+      showMsg('profile-msg','','')
+      toast('Name updated ✓')
+    })
+    .catch(e => showMsg('profile-msg', window.TechableAuth.friendlyError(e.code), 'error'))
+}
+
+function toggleAI() {
+  const btn = document.getElementById('ai-toggle')
+  btn.classList.toggle('on')
+  const mode = btn.classList.contains('on') ? 'gemini' : 'local'
+  localStorage.setItem('t_ai_mode', mode)
+  if (window.TECHABLE_CONFIG) window.TECHABLE_CONFIG.aiMode = mode
+  toast('AI mode: ' + mode)
+}
+
+function toggleVoicePref() {
+  const btn = document.getElementById('voice-toggle')
+  btn.classList.toggle('on')
+  localStorage.setItem('t_voice_pref', btn.classList.contains('on') ? 'on' : 'off')
+  toast('Voice ' + (btn.classList.contains('on') ? 'on' : 'off'))
+}
+
+function doSignOut() {
+  window.TechableAuth.signOut()
+}
+
+function confirmDelete() {
+  const confirmed = confirm('Delete your account permanently? This cannot be undone.')
+  if (!confirmed) return
+  window.TechableAuth.deleteAccount()
+    .catch(e => showMsg('danger-msg', window.TechableAuth.friendlyError(e.code), 'error'))
+}
+
+// Auth guard — runs after auth.js module loads
+function waitForAuth() {
+  if (window.TechableAuth?.ready !== undefined) {
+    window.TechableAuth.guard(user => {
+      document.getElementById('page-content').style.display = 'block'
+    })
+  } else {
+    setTimeout(waitForAuth, 50)
+  }
+}
+waitForAuth()
+</script>
+</body>
+</html>

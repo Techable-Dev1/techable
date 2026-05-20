@@ -447,9 +447,31 @@ img{display:block;max-width:100%}
   .hdr-name{font-size:15px}
   .tab-btn{padding:10px 12px;font-size:12px}
 }
+
+.usr-btn{display:flex;align-items:center;gap:8px;background:none;border:1.5px solid var(--border);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer;transition:all .18s}
+.usr-btn:hover{border-color:var(--rust-lt);background:var(--rust-pale)}
+.usr-av{width:26px;height:26px;border-radius:50%;background:var(--rust);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:var(--font-d);flex-shrink:0}
+.usr-av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.usr-name{font-size:12px;font-weight:500;color:var(--ink2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.usr-menu{position:absolute;top:calc(var(--hh) + 4px);right:16px;background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);padding:6px;min-width:200px;z-index:200;display:none}
+.usr-menu.open{display:block;animation:fadeIn .15s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.um-info{padding:8px 10px 10px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.um-name{font-size:13px;font-weight:500;color:var(--ink)}
+.um-email{font-size:11px;color:var(--ink3);margin-top:2px}
+.um-btn{width:100%;text-align:left;padding:8px 10px;border-radius:var(--r-sm);background:none;font-size:13px;color:var(--ink2);cursor:pointer;transition:background .15s;border:none;font-family:var(--font)}
+.um-btn:hover{background:var(--cream)}
+.um-btn.danger{color:var(--rust)}
+.um-btn.danger:hover{background:var(--rust-pale)}
 </style>
 </head>
 <body>
+<!-- Auth loading overlay -->
+<div id="auth-loading" style="position:fixed;inset:0;background:var(--cream);display:flex;align-items:center;justify-content:center;z-index:1000">
+  <div style="width:36px;height:36px;border:3px solid #D4C8BC;border-top-color:#C4552B;border-radius:50%;animation:spin .7s linear infinite"></div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
 <div class="shell">
 
   <!-- HEADER -->
@@ -460,7 +482,11 @@ img{display:block;max-width:100%}
       <span class="hdr-name">Techable</span>
     </a>
     <div class="hdr-space"></div>
-    <div class="hdr-badge">Local Mode</div>
+    <div class="hdr-badge" id="ai-badge">● Local Mode</div>
+    <a href="profile.html" id="usr-btn" style="display:none;align-items:center;gap:7px;text-decoration:none;border:1.5px solid rgba(180,156,136,.2);border-radius:20px;padding:4px 12px 4px 4px;transition:all .18s;background:transparent" onmouseover="this.style.background='#FDF0EB';this.style.borderColor='#E07A55'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(180,156,136,.2)'">
+      <div id="usr-av" style="width:26px;height:26px;border-radius:50%;background:#C4552B;color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-family:'Fraunces',serif">?</div>
+      <span id="usr-name" style="font-size:12px;font-weight:500;color:#4A3828;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    </a>
     <button class="hdr-menu" id="hdr-menu" onclick="toggleDrawer()">☰</button>
   </header>
 
@@ -662,6 +688,51 @@ img{display:block;max-width:100%}
 </div>
 
 <script>document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}))</script>
+
+<!-- Config loading: API (Vercel) first, config.js fallback (local) -->
+<script>
+  window._cfg = fetch('/api/config')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d?.firebase?.apiKey) window.TECHABLE_CONFIG = d })
+    .catch(() => {})
+    .then(() => new Promise(res => setTimeout(() => res(window.TECHABLE_CONFIG), 80)))
+</script>
+<script src="config.js" onerror="void 0"></script>
+
+<!-- Auth guard + user display -->
+<script type="module" src="auth.js"></script>
+<script>
+// Update header once auth state is known
+document.addEventListener('auth:stateChanged', e => {
+  const user = e.detail
+  if (!user) return
+  const btn   = document.getElementById('usr-btn')
+  const av    = document.getElementById('usr-av')
+  const uname = document.getElementById('usr-name')
+  if (!btn) return
+  btn.style.display = 'flex'
+  const name = user.displayName || user.email?.split('@')[0] || 'User'
+  const init = name.split(/[\s@]/).map(w=>w[0]).slice(0,2).join('').toUpperCase()
+  if (user.photoURL) {
+    av.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="avatar"/>`
+  } else {
+    av.textContent = init
+  }
+  uname.textContent = name
+})
+
+// Auth guard — polls until auth.js module has loaded TechableAuth
+function waitForAuth() {
+  if (window.TechableAuth?.ready !== undefined) {
+    window.TechableAuth.guard(() => {
+      // Auth confirmed, app.js will init via DOMContentLoaded
+    })
+  } else {
+    setTimeout(waitForAuth, 50)
+  }
+}
+waitForAuth()
+</script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 
